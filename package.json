@@ -1,10 +1,11 @@
 {
   "name": "advantage-gen-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "An AI Ad Creative Generator is a tool that creates ads using artificial intelligence. It helps make ad text, images, and designs quickly. You only need to enter basic details about your product. The AI automatically generates creative marketing content. It saves time and makes advertising easier for businesses.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -14,5 +15,14 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanu123-alt/AI-Ad-Creative-Generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tanu123-alt/AI-Ad-Creative-Generator/issues"
+  },
+  "homepage": "https://github.com/tanu123-alt/AI-Ad-Creative-Generator#readme"
 }
