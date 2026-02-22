@@ -1,13 +1,16 @@
-const { generateAdContent } = require("../services/aiServices");
+const { generateAdText } = require("../services/aiServices");
 
-exports.generateAd = async (req, res) => {
+const generateAd = async (req, res) => {
   try {
-    const result = await generateAdContent(req.body);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({
-      message: "Error generating ad",
-      error: error.showMessage
+    const result = await generateAdText();
+
+    res.json({
+      adText: result[0]?.generated_text || result
     });
+
+  } catch (error) {
+    res.status(500).json({ error: "Error generating text" });
   }
 };
+
+module.exports = { generateAd };
