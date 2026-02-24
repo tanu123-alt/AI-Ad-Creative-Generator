@@ -1,38 +1,58 @@
-const axios = require("axios");
+const generateImage = require("./imageService");
 
-const generateAdText = async () => {
+const Ad = require("../models/Ad");
+
+const generateAdContent = async (data) => {
+
   try {
-    console.log("TOKEN:", process.env.HF_API_KEY);
 
-    const response = await axios.post(
-      "https://router.huggingface.co/v1/chat/completions",
-      {
-        model: "deepseek-ai/DeepSeek-R1:fastest", // use a provider-backed model
-        messages: [
-          { role: "system", content: "You are a helpful assistant." },
-          { role: "user", content: "Write a short advertisement for sports shoes" }
-        ],
-        max_output_tokens: 50
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`,
-          "Content-Type": "application/json"
-        }
-      }
+    const { product, audience, platform } = data;
+
+    const headline = `Best ${product} for ${audience}!`;
+
+    const caption =
+      `Upgrade your style with ${product}. Perfect for ${audience}.`;
+
+    const hashtags =
+      `#${product} #${audience} #${platform}`;
+
+    const imageName = await generateImage(
+
+      `${product} for ${audience}, advertising, high quality`
+
     );
 
-    // Chat response is OpenAI-style
-    const text = response.data.choices?.[0]?.message?.content;
-    console.log("HF OUTPUT:", text);
+    const newAd = new Ad({
 
-    return text;
+      product,
+      audience,
+      platform,
+      headline,
+      caption,
+      hashtags,
+      image: imageName
+
+    });
+
+    await newAd.save();
+
+    return {
+
+      headline,
+      caption,
+      hashtags,
+      image: imageName
+
+    };
+
   } catch (error) {
-    console.log("HF STATUS:", error.response?.status);
-    console.log("HF DATA:", error.response?.data);
-    console.log("HF MESSAGE:", error.message);
-    throw new Error("Error generating text");
+
+    console.log(error.message);
+
+    throw error;
+
   }
+
 };
 
-module.exports = { generateAdText };
+module.exports = { generateAdContent };
