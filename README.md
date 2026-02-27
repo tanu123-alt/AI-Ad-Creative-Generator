@@ -258,14 +258,6 @@ This project demonstrates:
 
 ---
 
-## 👩‍💻 Author
-
-Sona Jena
-MCA Student
-Full Stack Developer (MERN Stack)
-
----
-
 ## 📌 Why This Project Matters
 
 This project is not a basic CRUD app.
