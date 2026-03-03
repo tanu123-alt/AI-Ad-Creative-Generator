@@ -1,51 +1,46 @@
+require('dns').setDefaultResultOrder('ipv4first');
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path");
 
 require("dotenv").config();
-
 const app = express();
+const path = require("path");
 
 app.use(cors());
 app.use(express.json());
-
-app.use(express.static(path.join(__dirname, "public")));
+// serve generated images
 app.use("/generated", express.static(path.join(__dirname, "generated")));
+
 
 /* ROUTES */
 
 app.use("/api/ad", require("./src/routes/adroutes"));
 
 
-/* DEBUG LINE */
-
-console.log("Mongo URI:", process.env.MONGO_URI);
-
-
 /* MONGODB CONNECT */
 
 mongoose.connect(process.env.MONGO_URI)
 
-    .then(() => {
+.then(() => {
 
-        console.log("MongoDB Connected Successfully");
+console.log("MongoDB Connected Successfully");
 
-    })
+})
 
-    .catch((err) => {
+.catch((err) => {
 
-        console.log("MongoDB Connection Failed");
+console.log("MongoDB Connection Failed");
 
-        console.log(err);
+console.log(err);
 
-    });
+});
 
 
 /* SERVER */
 
 app.listen(5000, () => {
 
-    console.log("Server running on port 5000");
+console.log("Server running on port 5000");
 
 });
