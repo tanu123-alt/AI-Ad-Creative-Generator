@@ -12,44 +12,46 @@ const groq = new Groq({
 
 const rewritePromptForImage = async (product, audience, platform) => {
   const styleByPlatform = {
-    Instagram: "vibrant colors, trendy aesthetic, shallow depth of field",
-    Facebook: "friendly lifestyle scene, bright and clean composition",
-    LinkedIn: "minimal, corporate lighting, professional background",
-    Twitter: "bold contrast, poster-style layout, dramatic lighting",
+    Instagram: "vibrant colors, trendy aesthetic, social-media optimized composition",
+    Facebook: "friendly lifestyle scene, bright clean product placement",
+    LinkedIn: "minimal, professional, corporate lighting, clean background",
+    Twitter: "bold, high contrast, punchy poster style",
   };
 
   const style =
     styleByPlatform[platform] || "modern product advertisement, clean composition";
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a professional advertising creative director who rewrites prompts for high-quality image generation.",
-      },
-      {
-        role: "user",
-        content: `
-Rewrite this into a highly detailed cinematic image prompt.
+  model: "llama-3.1-8b-instant",
+  messages: [
+    {
+      role: "system",
+      content:
+        "You are a professional product advertising director. Always ensure the product is clearly visible, centered, in focus, and prominently displayed in the foreground. The product must be the main subject of the image."
+    },
+    {
+      role: "user",
+      content: `
+Rewrite into a detailed cinematic product advertisement prompt.
 
 Product: ${product}
-Target Audience: ${audience}
-Platform Style: ${style}
+Audience: ${audience}
+Platform style: ${style}
 
-Include:
-- Lighting details
-- Mood and emotion
-- Camera angle
-- Background elements
-- Marketing aesthetics
+The product must:
+- Be clearly visible
+- Be in the foreground
+- Be sharply focused
+- Occupy visual attention
+- Look realistic and physical
 
-Return ONLY the final enhanced prompt.
-`,
-      },
-    ],
-  });
+Include lighting, camera angle, product placement and marketing composition.
+
+Return only the final prompt.
+`
+    }
+  ]
+});
 
   return completion.choices[0].message.content.trim();
 };

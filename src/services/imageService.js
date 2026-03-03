@@ -46,19 +46,24 @@ if (response.status !== 200) {
 
     let compositeOptions = [];
 
-    // LOGO OVERLAY
-    if (logoPath && fs.existsSync(logoPath)) {
-      const logoBuffer = await sharp(logoPath)
-        .resize(150)
-        .png()
-        .toBuffer();
+    // LOGO OVERLAY DEBUG
+console.log("Received logoPath:", logoPath);
 
-      compositeOptions.push({
-        input: logoBuffer,
-        gravity: "southeast"
-      });
-    }
+if (logoPath) {
+  console.log("Exists:", fs.existsSync(logoPath));
+}
 
+if (logoPath && fs.existsSync(logoPath)) {
+  const logoBuffer = await sharp(logoPath)
+    .resize(150)
+    .png()
+    .toBuffer();
+
+  compositeOptions.push({
+    input: logoBuffer,
+    gravity: "southeast"
+  });
+}
     // CTA BADGE
     const ctaBadge = await sharp({
       create: {
