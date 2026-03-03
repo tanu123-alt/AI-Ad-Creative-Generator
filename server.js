@@ -1,22 +1,21 @@
+require('dns').setDefaultResultOrder('ipv4first');
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
 require("dotenv").config();
-
 const app = express();
+const path = require("path");
 
 app.use(cors());
 app.use(express.json());
+// serve generated images
+app.use("/generated", express.static(path.join(__dirname, "generated")));
+
 
 /* ROUTES */
 
 app.use("/api/ad", require("./src/routes/adroutes"));
-
-
-/* DEBUG LINE */
-
-console.log("Mongo URI:", process.env.MONGO_URI);
 
 
 /* MONGODB CONNECT */

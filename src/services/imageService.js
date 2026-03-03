@@ -1,69 +1,97 @@
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const sharp = require("sharp");
 
 const HF_TOKEN = process.env.HF_TOKEN;
 
-const generateImage = async (prompt) => {
-
+const generateImage = async (prompt, options = {}) => {
   try {
+    const { aspect = "square", logoPath = null } = options;
 
     const response = await axios({
+  method: "POST",
+  url: "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
+  headers: {
+    Authorization: `Bearer ${HF_TOKEN}`,
+    "Content-Type": "application/json",
+    Accept: "image/png",
+  },
+  data: { inputs: prompt },
+  responseType: "arraybuffer",
+  timeout: 120000,
+  validateStatus: () => true,
+});
 
-      method: "POST",
+if (response.status !== 200) {
+  console.log("HF STATUS:", response.status);
+  console.log("HF BODY:", Buffer.from(response.data).toString());
+  throw new Error("Image generation failed");
+}
 
-      url: "https://router.huggingface.co/hf-inference/models/stabilityai/stable-diffusion-xl-base-1.0",
+    let width = 1024;
+    let height = 1024;
 
-      headers: {
+    if (aspect === "vertical") {
+      width = 768;
+      height = 1024;
+    }
 
-        Authorization: `Bearer ${HF_TOKEN}`,
+    if (aspect === "horizontal") {
+      width = 1024;
+      height = 768;
+    }
 
-        "Content-Type": "application/json",
+    const baseImage = sharp(response.data).resize(width, height);
 
-        Accept: "image/png"
+    let compositeOptions = [];
 
-      },
+    // LOGO OVERLAY
+    if (logoPath && fs.existsSync(logoPath)) {
+      const logoBuffer = await sharp(logoPath)
+        .resize(150)
+        .png()
+        .toBuffer();
 
-      data: {
+      compositeOptions.push({
+        input: logoBuffer,
+        gravity: "southeast"
+      });
+    }
 
-        inputs: prompt
+    // CTA BADGE
+    const ctaBadge = await sharp({
+      create: {
+        width: 300,
+        height: 80,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0.6 }
+      }
+    })
+      .png()
+      .toBuffer();
 
-      },
-
-      responseType: "arraybuffer"
-
+    compositeOptions.push({
+      input: ctaBadge,
+      gravity: "south"
     });
 
+    const finalImage = await baseImage
+      .composite(compositeOptions)
+      .png()
+      .toBuffer();
 
     const fileName = `ad_${Date.now()}.png`;
+    const filePath = path.join(__dirname, "../../generated", fileName);
 
-    const filePath = path.join(
-
-      __dirname,
-
-      "../../generated",
-
-      fileName
-
-    );
-
-    fs.writeFileSync(filePath, response.data);
+    fs.writeFileSync(filePath, finalImage);
 
     return fileName;
 
-
   } catch (error) {
-
-    console.log("IMAGE ERROR:");
-
-    console.log(error.response?.status);
-
-    console.log(error.response?.data?.toString());
-
+    console.log("IMAGE ERROR:", error.response?.data?.toString() || error.message);
     throw new Error("Image generation failed");
-
   }
-
 };
 
 module.exports = generateImage;
