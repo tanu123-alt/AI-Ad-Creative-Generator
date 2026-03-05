@@ -16,6 +16,7 @@ app.use("/generated", express.static(path.join(__dirname, "generated")));
 /* ROUTES */
 
 app.use("/api/ad", require("./src/routes/adroutes"));
+app.use("/api/auth", require("./src/routes/authRoutes"));
 
 
 /* DEBUG LINE */

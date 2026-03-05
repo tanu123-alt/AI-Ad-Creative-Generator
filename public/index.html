@@ -1,28 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Ad Creative Generator</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f9fafb; color: #111827; }
-        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
-        h1 { color: #2563eb; text-align: center; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: 500; }
-        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 5px; box-sizing: border-box; }
-        button { background-color: #2563eb; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; }
-        button:hover { background-color: #1d4ed8; }
-        button:disabled { background-color: #93c5fd; cursor: not-allowed; }
-        .result { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; display: none; }
-        .result img { max-width: 100%; height: auto; border-radius: 5px; margin-top: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .spinner { display: none; text-align: center; margin-top: 20px; color: #6b7280; font-style: italic; }
-        .ad-copy { background: #f3f4f6; padding: 15px; border-radius: 5px; margin-top: 15px; }
-        .ad-copy h3 { margin-top: 0; color: #111827; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9fafb;
+            color: #111827;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            color: #2563eb;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        button:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            display: none;
+        }
+
+        .result img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .ad-copy {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+
+        .ad-copy h3 {
+            margin-top: 0;
+            color: #111827;
+        }
+
+        /* User bar */
+        .user-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding: 10px 14px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1e40af;
+        }
+
+        .user-bar .signout-btn {
+            background: #2563eb;
+            color: white;
+            padding: 6px 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            width: auto;
+        }
+
+        .user-bar .signout-btn:hover {
+            background: #1d4ed8;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
+        <!-- User Bar -->
+        <div class="user-bar" id="userBar">
+            <span>👋 Hello, <strong id="userGreeting">User</strong></span>
+            <button class="signout-btn" onclick="signOut()">Sign Out</button>
+        </div>
         <h1>AI Ad Creative Generator</h1>
         <form id="adForm">
             <div class="form-group">
@@ -54,39 +169,56 @@
     </div>
 
     <script>
+        /* ── Auth guard ── */
+        (function () {
+            const token = localStorage.getItem('authToken');
+            if (!token) { window.location.href = '/signin.html'; }
+            const name = localStorage.getItem('userName') || 'User';
+            document.addEventListener('DOMContentLoaded', () => {
+                const el = document.getElementById('userGreeting');
+                if (el) el.textContent = name;
+            });
+        })();
+
+        function signOut() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userName');
+            window.location.href = '/signin.html';
+        }
+
         document.getElementById('adForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const product = document.getElementById('product').value;
             const audience = document.getElementById('audience').value;
             const platform = document.getElementById('platform').value;
-            
+
             const btn = document.getElementById('submitBtn');
             const spinner = document.getElementById('spinner');
             const resultDiv = document.getElementById('result');
-            
+
             btn.disabled = true;
             spinner.style.display = 'block';
             resultDiv.style.display = 'none';
-            
+
             try {
                 const response = await fetch('/api/ad/generate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ product, audience, platform })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (!response.ok) {
                     throw new Error(data.error || 'Failed to generate ad');
                 }
-                
+
                 document.getElementById('res-headline').textContent = data.headline;
                 document.getElementById('res-caption').textContent = data.caption;
                 document.getElementById('res-hashtags').textContent = data.hashtags;
                 document.getElementById('res-image').src = '/generated/' + data.image;
-                
+
                 resultDiv.style.display = 'block';
             } catch (error) {
                 alert('Error: ' + error.message);
@@ -97,4 +229,5 @@
         });
     </script>
 </body>
+
 </html>
