@@ -269,6 +269,6 @@ It demonstrates:
 * Full-stack production workflow
 * Modern SaaS architecture
 
-It is resume-ready and interview-ready.
+
 
 ---
