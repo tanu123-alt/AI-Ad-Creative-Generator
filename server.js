@@ -1,4 +1,7 @@
+
 require('dns').setDefaultResultOrder('ipv4first');
+require("dotenv").config();
+require("dns").setDefaultResultOrder("ipv4first");
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -44,3 +47,8 @@ app.listen(5000, () => {
 console.log("Server running on port 5000");
 
 });
+/* Server */
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
