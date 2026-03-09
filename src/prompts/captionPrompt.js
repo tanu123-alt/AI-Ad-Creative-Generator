@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 export const captionPrompt = ({ message, emotion, platform, cta }) => `
 Write a ${platform} caption.
 
@@ -8,7 +8,6 @@ CTA: ${cta}
 
 Return only the caption text.
 `;
-=======
 const buildCaptionPrompt = (product, audience, tone) => {
   const toneMap = {
     witty: "clever and playful",
@@ -24,4 +23,4 @@ Return ONLY the caption.`;
 };
 
 module.exports = buildCaptionPrompt;
->>>>>>> bf9b5e3432a6c0d2e38dabf24a98689efbf8348f
+
