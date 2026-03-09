@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In – AI Ad Creative Generator</title>
+    <meta name="description" content="Sign in or create an account to access the AI Ad Creative Generator.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --accent: #a855f7;
+            --glass-bg: rgba(255, 255, 255, 0.07);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --text-primary: #f1f5f9;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(255, 255, 255, 0.08);
+            --error: #f87171;
+            --success: #34d399;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1040 40%, #24243e 100%);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background orbs */
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.35;
+            animation: drift 8s ease-in-out infinite alternate;
+        }
+
+        .bg-orb-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #6366f1, transparent);
+            top: -150px;
+            left: -150px;
+            animation-duration: 9s;
+        }
+
+        .bg-orb-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #a855f7, transparent);
+            bottom: -100px;
+            right: -100px;
+            animation-duration: 11s;
+            animation-direction: alternate-reverse;
+        }
+
+        .bg-orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #ec4899, transparent);
+            top: 50%;
+            left: 60%;
+            animation-duration: 13s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(30px, 20px) scale(1.08);
+            }
+        }
+
+        /* Card */
+        .card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 440px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 44px 40px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+            justify-content: center;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+        }
+
+        .logo-text {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+        }
+
+        .logo-text span {
+            color: var(--primary-light);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 9px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        /* Form sections */
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            letter-spacing: -0.4px;
+        }
+
+        .subtitle {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 7px;
+            letter-spacing: 0.3px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 14px 12px 40px;
+            background: var(--input-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 11px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        input::placeholder {
+            color: rgba(148, 163, 184, 0.5);
+        }
+
+        /* Toggle password */
+        .toggle-pass {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 16px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+        }
+
+        .toggle-pass:hover {
+            opacity: 1;
+        }
+
+        /* Remember / forgot row */
+        .row-inline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .remember input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .forgot-link {
+            font-size: 13px;
+            color: var(--primary-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: #fff;
+        }
+
+        /* Submit button */
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.12);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn-submit:hover::after {
+            opacity: 1;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 28px rgba(99, 102, 241, 0.55);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .divider span {
+            font-size: 12px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Google button */
+        .btn-google {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .btn-google:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Alert messages */
+        .alert {
+            padding: 11px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 18px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .alert.error {
+            background: rgba(248, 113, 113, 0.15);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: var(--error);
+        }
+
+        .alert.success {
+            background: rgba(52, 211, 153, 0.15);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: var(--success);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Spinner inside button */
+        .spinner-ring {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Terms text */
+        .terms-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 18px;
+            line-height: 1.6;
+        }
+
+        .terms-text a {
+            color: var(--primary-light);
+            text-decoration: none;
+        }
+
+        .terms-text a:hover {
+            text-decoration: underline;
+        }
+
+        /* Strength bar */
+        .strength-bar-wrap {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .strength-bar-track {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 99px;
+            overflow: hidden;
+        }
+
+        .strength-bar-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 99px;
+            transition: width 0.3s, background 0.3s;
+        }
+
+        .strength-label {
+            font-size: 11px;
+            margin-top: 4px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                margin: 16px;
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Background orbs -->
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <div class="card">
+
+        <!-- Logo -->
+        <div class="logo">
+            <div class="logo-icon">✦</div>
+            <div class="logo-text">AI <span>Ad Creative</span></div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+            <button class="tab-btn" id="tab-signup" onclick="switchTab('signup')">Create Account</button>
+        </div>
+
+        <!-- ── SIGN IN ── -->
+        <div class="form-section active" id="section-signin">
+            <h2>Welcome back 👋</h2>
+            <p class="subtitle">Sign in to continue generating stunning ads.</p>
+
+            <div class="alert error" id="signin-error"></div>
+            <div class="alert success" id="signin-success"></div>
+
+            <form id="signinForm" onsubmit="handleSignIn(event)">
+                <div class="form-group">
+                    <label for="signin-email">Email address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="signin-email" placeholder="you@example.com" required
+                            autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signin-password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="signin-password" placeholder="Enter your password" required
+                            autocomplete="current-password">
+                        <button type="button" class="toggle-pass"
+                            onclick="togglePass('signin-password', this)">👁️</button>
+                    </div>
+                </div>
+
+                <div class="row-inline">
+                    <label class="remember">
+                        <input type="checkbox" id="remember-me"> Remember me
+                    </label>
+                    <a href="#" class="forgot-link">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn-submit" id="signin-btn">
+                    <div class="btn-inner">
+                        <div class="spinner-ring" id="signin-spinner"></div>
+                        <span id="signin-btn-text">Sign In</span>
+                    </div>
+                </button>
+            </form>
+
+            <div class="divider"><span>or continue with</span></div>
+
+            <button class="btn-google" onclick="alert('Google Sign-In coming soon!')">
+                <svg class="google-icon" viewBox="0 0 24 24">
+                    <path fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                    <path fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <!-- ── SIGN UP ── -->
+        <div class="form-section" id="section-signup">
+            <h2>Create account ✨</h2>
+            <p class="subtitle">Join thousands generating AI-powered ads.</p>
+
+            <div class="alert error" id="signup-error"></div>
+            <div class="alert success" id="signup-success"></div>
+
+            <form id="signupForm" onsubmit="handleSignUp(event)">
+                <div class="form-group">
+                    <label for="signup-name">Full name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="signup-name" placeholder="Your full name" required autocomplete="name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="signup-email" placeholder="you@example.com" required
+                            autocomplete="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="signup-password" placeholder="Create a strong password" required
+                            autocomplete="new-password" oninput="checkStrength(this.value)">
+                        <button type="button" class="toggle-pass"
+                            onclick="togglePass('signup-password', this)">👁️</button>
+                    </div>
+                    <div class="strength-bar-wrap" id="strength-wrap">
+                        <div class="strength-bar-track">
+                            <div class="strength-bar-fill" id="strength-fill"></div>
+                        </div>
+                        <div class="strength-label" id="strength-label"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm">Confirm password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔑</span>
+                        <input type="password" id="signup-confirm" placeholder="Repeat your password" required
+                            autocomplete="new-password">
+                        <button type="button" class="toggle-pass"
+                            onclick="togglePass('signup-confirm', this)">👁️</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="signup-btn" style="margin-top:6px">
+                    <div class="btn-inner">
+                        <div class="spinner-ring" id="signup-spinner"></div>
+                        <span id="signup-btn-text">Create Account</span>
+                    </div>
+                </button>
+            </form>
+
+            <p class="terms-text">
+                By signing up you agree to our
+                <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        /* ── Tab switch ── */
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-section').forEach(s => s.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('section-' + tab).classList.add('active');
+        }
+
+        /* ── Toggle password visibility ── */
+        function togglePass(id, btn) {
+            const inp = document.getElementById(id);
+            if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+            else { inp.type = 'password'; btn.textContent = '👁️'; }
+        }
+
+        /* ── Password strength ── */
+        function checkStrength(val) {
+            const wrap = document.getElementById('strength-wrap');
+            const fill = document.getElementById('strength-fill');
+            const label = document.getElementById('strength-label');
+            wrap.style.display = val.length ? 'block' : 'none';
+
+            let score = 0;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+
+            const levels = [
+                { pct: '25%', color: '#f87171', text: 'Weak' },
+                { pct: '50%', color: '#fb923c', text: 'Fair' },
+                { pct: '75%', color: '#facc15', text: 'Good' },
+                { pct: '100%', color: '#34d399', text: 'Strong 💪' },
+            ];
+            const lv = levels[Math.max(score - 1, 0)];
+            fill.style.width = lv.pct;
+            fill.style.background = lv.color;
+            label.textContent = lv.text;
+            label.style.color = lv.color;
+        }
+
+        /* ── Show / hide alerts ── */
+        function showAlert(id, msg, type) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.className = 'alert ' + type;
+            el.style.display = 'block';
+        }
+        function hideAlerts(...ids) { ids.forEach(i => { document.getElementById(i).style.display = 'none'; }); }
+
+        /* ── Loading state ── */
+        function setLoading(btnId, spinnerId, textId, loading, label = '') {
+            document.getElementById(btnId).disabled = loading;
+            document.getElementById(spinnerId).style.display = loading ? 'inline-block' : 'none';
+            document.getElementById(textId).textContent = loading ? 'Please wait…' : label;
+        }
+
+        /* ── Sign In ── */
+        async function handleSignIn(e) {
+            e.preventDefault();
+            hideAlerts('signin-error', 'signin-success');
+            const email = document.getElementById('signin-email').value.trim();
+            const password = document.getElementById('signin-password').value;
+
+            setLoading('signin-btn', 'signin-spinner', 'signin-btn-text', true, 'Sign In');
+            try {
+                const res = await fetch('/api/auth/signin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sign in failed');
+
+                // Store session token
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('userName', data.name || email);
+
+                showAlert('signin-success', '✅ Signed in! Redirecting…', 'success');
+                setTimeout(() => { window.location.href = '/'; }, 1000);
+            } catch (err) {
+                showAlert('signin-error', '❌ ' + err.message, 'error');
+            } finally {
+                setLoading('signin-btn', 'signin-spinner', 'signin-btn-text', false, 'Sign In');
+            }
+        }
+
+        /* ── Sign Up ── */
+        async function handleSignUp(e) {
+            e.preventDefault();
+            hideAlerts('signup-error', 'signup-success');
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+
+            if (password !== confirm) {
+                showAlert('signup-error', '❌ Passwords do not match.', 'error'); return;
+            }
+            if (password.length < 6) {
+                showAlert('signup-error', '❌ Password must be at least 6 characters.', 'error'); return;
+            }
+
+            setLoading('signup-btn', 'signup-spinner', 'signup-btn-text', true, 'Create Account');
+            try {
+                const res = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Sign up failed');
+
+                showAlert('signup-success', '🎉 Account created! Signing you in…', 'success');
+                localStorage.setItem('authToken', data.token);
+                localStorage.setItem('userName', name);
+                setTimeout(() => { window.location.href = '/'; }, 1200);
+            } catch (err) {
+                showAlert('signup-error', '❌ ' + err.message, 'error');
+            } finally {
+                setLoading('signup-btn', 'signup-spinner', 'signup-btn-text', false, 'Create Account');
+            }
+        }
+
+        /* ── Auto-redirect if already signed in ── */
+        if (localStorage.getItem('authToken')) {
+            window.location.href = '/';
+        }
+    </script>
+</body>
+
+</html>
