@@ -1,0 +1,18 @@
+/* Navbar hamburger — hidden by default */
+.navbar-mobile-show { display: none !important; }
+
+@media (max-width: 768px) {
+  .navbar-mobile-show { display: flex !important; }
+  .navbar-links { display: none !important; }
+  .studio-grid { grid-template-columns: 1fr !important; }
+  .canvas-preview-sticky { position: static !important; }
+  .auth-left-panel { display: none !important; }
+  .history-grid { grid-template-columns: 1fr !important; }
+  .history-filters { flex-direction: column !important; }
+  .profile-stats-grid { grid-template-columns: 1fr 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .welcome-cta-row { flex-direction: column !important; align-items: stretch !important; }
+  .studio-tone-grid { grid-template-columns: repeat(2, 1fr) !important; }
+}
