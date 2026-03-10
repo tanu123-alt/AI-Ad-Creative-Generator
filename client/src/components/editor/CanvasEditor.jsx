@@ -49,6 +49,10 @@ const CanvasEditor = forwardRef(({ imageUrl, headline, caption, cta, logoUrl, to
       urlWithBust,
       (img) => {
         if (!fabricRef.current) return;
+        if (!img || !img.width || !img.height) {
+          console.error("❌ Image failed to load:", urlWithBust);
+          return;
+        }
         img.set({
           selectable: false,
           evented: false,

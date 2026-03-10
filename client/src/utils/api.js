@@ -5,6 +5,11 @@ const API = axios.create({
   timeout: 180000,
 });
 
+// Auth
+export const signup = (data) => API.post("/auth/signup", data);
+export const signin = (data) => API.post("/auth/signin", data);
+
+// Ad generation
 export const generateAd = (data) => {
   if (data instanceof FormData) {
     return API.post("/ad/generate", data, {

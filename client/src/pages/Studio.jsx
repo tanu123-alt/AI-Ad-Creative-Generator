@@ -56,9 +56,9 @@ export default function Studio() {
       clearInterval(prog);
       setProgress(100);
 
-      // ✅ Use relative URL — vite proxy handles it
-      const imageUrl = `/generated/${data.image}`;
-
+      // Use imageUrl returned by the API (relative URL, proxied by Vite in dev)
+      const imageUrl = data.imageUrl || `/generated/${data.image}`;
+      
       setTimeout(() => {
         setResult({ ...data, imageUrl });
         setStep("result");

@@ -6,9 +6,10 @@ const path = require("path");
 
 const adController = require("../controllers/adcontroller");
 
-// upload config
+// upload config — use absolute path so multer works from any working directory
+
 const upload = multer({
-  dest: "generated/assets/"
+  dest: path.join(__dirname, "../../generated/assets/")
 });
 
 // generate ad
