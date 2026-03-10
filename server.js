@@ -5,15 +5,26 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Ensure generated directories exist (they are gitignored)
+const generatedDir = path.join(__dirname, "generated");
+const assetsDir = path.join(generatedDir, "assets");
+if (!fs.existsSync(generatedDir)) fs.mkdirSync(generatedDir, { recursive: true });
+if (!fs.existsSync(assetsDir)) fs.mkdirSync(assetsDir, { recursive: true });
+
 app.use(cors());
 app.use(express.json());
 
-// serve generated images
-app.use("/generated", express.static(path.join(__dirname, "generated")));
+// Serve generated images with Cross-Origin-Resource-Policy so canvas crossOrigin works
+// (cors() middleware above already handles Access-Control-Allow-Origin)
+app.use("/generated", (req, res, next) => {
+  res.header("Cross-Origin-Resource-Policy", "cross-origin");
+  next();
+}, express.static(generatedDir));
 
 /* ROUTES */
 app.use("/api/ad", require("./src/routes/adroutes"));

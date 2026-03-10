@@ -1,29 +1,11 @@
 const { generateAdContent } = require("../services/aiServices");
-
-exports.generateAd = async (req, res) => {
-
-  try {
-
-    const result = await generateAdContent(req.body);
-
-    res.json(result);
-
-  } catch (error) {
-
-    res.status(500).json({
-
-      error: error.message
-
-    });
-
-  }
-}
 const Ad = require("../models/Ad");
 
 // Generate Ad
 exports.generateAd = async (req, res) => {
   try {
-    const result = await generateAdContent(req.body);
+    const logoPath = req.file?.path || null;
+    const result = await generateAdContent({ ...req.body, logoPath });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
