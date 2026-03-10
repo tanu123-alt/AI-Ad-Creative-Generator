@@ -1,16 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+// ✅ OUTSIDE component — never recreated, typewriter won't flicker
+const PHRASES = ["Generate Stunning Ads.", "AI-Powered Creativity.", "Ship Faster."];
 
 export default function Welcome() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const canvasRef = useRef(null);
   const [typed, setTyped] = useState("");
-  const phrases = ["Generate Stunning Ads.", "AI-Powered Creativity.", "Ship Faster."];
   const [phraseIndex, setPhraseIndex] = useState(0);
+  const [showCursor, setShowCursor] = useState(true);
 
+  // Particle canvas
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
     const ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -25,7 +32,8 @@ export default function Welcome() {
     }));
 
     let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
-    canvas.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    const onMove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY; };
+    canvas.addEventListener("mousemove", onMove);
 
     let animId;
     const animate = () => {
@@ -61,23 +69,47 @@ export default function Welcome() {
       animId = requestAnimationFrame(animate);
     };
     animate();
-    return () => cancelAnimationFrame(animId);
+    return () => { cancelAnimationFrame(animId); canvas.removeEventListener("mousemove", onMove); };
   }, []);
 
+  // ✅ Typewriter — stable, no flicker
   useEffect(() => {
-    const phrase = phrases[phraseIndex];
+    const phrase = PHRASES[phraseIndex];
     let i = 0;
+    let timeoutId;
     setTyped("");
-    const interval = setInterval(() => {
-      setTyped(phrase.slice(0, i + 1));
+
+    const type = () => {
       i++;
-      if (i >= phrase.length) {
-        clearInterval(interval);
-        setTimeout(() => setPhraseIndex((prev) => (prev + 1) % phrases.length), 1800);
+      setTyped(phrase.slice(0, i));
+      if (i < phrase.length) {
+        timeoutId = setTimeout(type, 65);
+      } else {
+        timeoutId = setTimeout(() => {
+          setPhraseIndex((prev) => (prev + 1) % PHRASES.length);
+        }, 2000);
       }
-    }, 60);
-    return () => clearInterval(interval);
+    };
+
+    timeoutId = setTimeout(type, 65);
+    return () => clearTimeout(timeoutId);
   }, [phraseIndex]);
+
+  // Cursor blink
+  useEffect(() => {
+    const id = setInterval(() => setShowCursor((v) => !v), 530);
+    return () => clearInterval(id);
+  }, []);
+
+  // ✅ FIXED: Navigate to /auth first — login happens inside Auth.jsx after form submit
+  const handleStart = () => {
+    navigate("/auth");
+  };
+
+  // ✅ FIXED: Also go to /auth — after login, user can go to history from navbar
+  const handleHistory = () => {
+    navigate("/auth");
+  };
 
   return (
     <motion.div
@@ -100,126 +132,82 @@ export default function Welcome() {
           style={{ position: "absolute", width: orb.size, height: orb.size, left: orb.x, top: orb.y, background: `radial-gradient(circle, ${orb.color}, transparent 70%)`, borderRadius: "50%", zIndex: 0, pointerEvents: "none" }} />
       ))}
 
-      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "0 24px", maxWidth: 800 }}>
+      <div style={{ position: "relative", zIndex: 1, textAlign: "center", padding: "40px 24px", maxWidth: 860, width: "100%" }}>
+
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", borderRadius: 100, padding: "6px 18px", marginBottom: 28, fontSize: 20, color: "#a78bfa" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "rgba(124,58,237,0.15)", border: "1px solid rgba(124,58,237,0.3)", borderRadius: 100, padding: "8px 20px", marginBottom: 32, fontSize: 15, color: "#a78bfa", fontFamily: "Syne", fontWeight: 600 }}>
             ✦ AI-Powered Ad Creative Studio
           </div>
         </motion.div>
 
-        <motion.h1 initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-          style={{ fontSize: "clamp(40px, 7vw, 80px)", fontFamily: "Syne", fontWeight: 1000, lineHeight: 1.1, marginBottom: 16 }}>
+        <motion.h1
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ fontSize: "clamp(44px, 8vw, 88px)", fontFamily: "Syne", fontWeight: 900, lineHeight: 1.05, marginBottom: 20, color: "#f0e6ff", letterSpacing: -2 }}>
           <span className="shimmer-text">AdVantage</span> Gen
         </motion.h1>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-          style={{ fontSize: "clamp(18px, 3vw, 28px)", fontFamily: "Syne", fontWeight: 600, color: "#a78bfa", minHeight: 40, marginBottom: 24 }}>
-          {typed}<span style={{ opacity: 0.7 }}>|</span>
+        {/* ✅ Fixed typewriter */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          style={{ fontSize: "clamp(18px, 3vw, 26px)", fontFamily: "Syne", fontWeight: 600, color: "#a78bfa", height: 48, marginBottom: 24, display: "flex", alignItems: "center", justifyContent: "center", gap: 2 }}>
+          <span>{typed}</span>
+          <span style={{ opacity: showCursor ? 1 : 0, transition: "opacity 0.1s", color: "#e879f9" }}>|</span>
         </motion.div>
 
-        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-          style={{ fontSize: 20, color: "#6b6b8a", maxWidth: 500, margin: "0 auto 40px", lineHeight: 1.7 }}>
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          style={{ fontSize: 18, color: "#6b6b8a", maxWidth: 520, margin: "0 auto 44px", lineHeight: 1.8 }}>
           Generate professional ad creatives with AI — stunning images, compelling copy, and hashtags in seconds.
         </motion.p>
 
-        <motion.div className="welcome-cta-row" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-          style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap" }}>
-          <motion.button className="btn-primary" onClick={() => navigate("/auth")}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          style={{ display: "flex", gap: 16, justifyContent: "center", flexWrap: "wrap", marginBottom: 72 }}>
+          <motion.button className="btn-primary" onClick={handleStart}
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-            style={{ padding: "16px 36px", fontSize: 20 }}>
+            style={{ padding: "18px 44px", fontSize: 18, fontFamily: "Syne", fontWeight: 700 }}>
             ✦ Start Creating
           </motion.button>
-          <motion.button className="btn-ghost" onClick={() => navigate("/history")}
+          <motion.button className="btn-ghost" onClick={handleHistory}
             whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-            style={{ padding: "16px 36px", fontSize: 20 }}>
+            style={{ padding: "18px 44px", fontSize: 18, fontFamily: "Syne", fontWeight: 700 }}>
             View History →
           </motion.button>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
-        style={{ display: "flex", gap: 20, justifyContent: "center", marginTop: 60, flexWrap: "nowrap" }}>
-  
-  {[
-    {
-      icon: "🎨",
-      title: "AI Image Studio",
-      desc: "Generate stunning product visuals using Stable Diffusion XL. Logo overlay, CTA badge, and aspect ratio control — all automated.",
-      color: "#7c3aed",
-    },
-    {
-      icon: "✍️",
-      title: "Smart Copywriting",
-      desc: "Groq-powered captions and hashtags tailored to your brand tone — Witty, Professional, Urgent or Inspirational.",
-      color: "#e879f9",
-    },
-    {
-      icon: "📊",
-      title: "Multi-Platform Ready",
-      desc: "Optimized for Instagram, LinkedIn, Facebook and Twitter. Export in Square, Vertical or Horizontal formats instantly.",
-      color: "#06b6d4",
-    },
-  ].map((card) => (
-    <motion.div
-      key={card.title}
-      whileHover={{ y: -8, scale: 1.03 }}
-      transition={{ duration: 0.3 }}
-      style={{
-        background: "rgba(13,13,26,0.8)",
-        border: `1px solid ${card.color}30`,
-        borderRadius: 20,
-        padding: "28px 24px",
-        width: 240,
-        textAlign: "left",
-        backdropFilter: "blur(12px)",
-        boxShadow: `0 8px 32px ${card.color}15`,
-        cursor: "default",
-      }}>
-      {/* Icon circle */}
-      <div style={{
-        width: 52,
-        height: 52,
-        borderRadius: 14,
-        background: `${card.color}20`,
-        border: `1px solid ${card.color}40`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: 24,
-        marginBottom: 16,
-      }}>
-        {card.icon}
-      </div>
+        {/* 3 feature cards */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+          style={{ display: "flex", gap: 20, justifyContent: "center", flexWrap: "nowrap" }}>
+          {[
+            { icon: "🎨", title: "AI Image Studio", desc: "Generate stunning product visuals using Stable Diffusion XL. Logo overlay, CTA badge, and aspect ratio control — all automated.", color: "#7c3aed" },
+            { icon: "✍️", title: "Smart Copywriting", desc: "Groq-powered captions and hashtags tailored to your brand tone — Witty, Professional, Urgent or Inspirational.", color: "#e879f9" },
+            { icon: "📊", title: "Multi-Platform Ready", desc: "Optimized for Instagram, LinkedIn, Facebook and Twitter. Export in Square, Vertical or Horizontal formats instantly.", color: "#06b6d4" },
+          ].map((card) => (
+            <motion.div key={card.title}
+              whileHover={{ y: -8, scale: 1.03 }}
+              transition={{ duration: 0.3 }}
+              style={{ background: "rgba(13,13,26,0.85)", border: `1px solid ${card.color}35`, borderRadius: 20, padding: "28px 22px", width: 240, textAlign: "left", backdropFilter: "blur(12px)", boxShadow: `0 8px 32px ${card.color}18`, flexShrink: 0 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, background: `${card.color}20`, border: `1px solid ${card.color}40`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, marginBottom: 16 }}>
+                {card.icon}
+              </div>
+              <div style={{ fontFamily: "Syne", fontWeight: 800, fontSize: 16, color: "#f0e6ff", marginBottom: 10 }}>{card.title}</div>
+              <div style={{ fontSize: 13, color: "#6b6b8a", lineHeight: 1.7 }}>{card.desc}</div>
+              <div style={{ marginTop: 18, height: 2, borderRadius: 2, background: `linear-gradient(90deg, ${card.color}, transparent)` }} />
+            </motion.div>
+          ))}
+        </motion.div>
 
-      {/* Title */}
-      <div style={{
-        fontFamily: "Syne",
-        fontWeight: 800,
-        fontSize: 16,
-        color: "#f0e6ff",
-        marginBottom: 10,
-      }}>
-        {card.title}
-      </div>
-
-      {/* Description */}
-      <div style={{
-        fontSize: 13,
-        color: "#6b6b8a",
-        lineHeight: 1.7,
-      }}>
-        {card.desc}
-      </div>
-
-      {/* Bottom accent line */}
-      <div style={{
-        marginTop: 20,
-        height: 2,
-        borderRadius: 2,
-        background: `linear-gradient(90deg, ${card.color}, transparent)`,
-      }} />
-    </motion.div>
-  ))}
-</motion.div>
       </div>
     </motion.div>
   );
