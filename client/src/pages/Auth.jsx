@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
+import { signup, signin } from "../utils/api";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -12,25 +13,28 @@ export default function Auth() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
 
   const handleSubmit = async () => {
-  setLoading(true);
+    if (!form.email || !form.password) return toast.error("Email and password are required");
+    if (tab === "register" && !form.name) return toast.error("Name is required");
 
-  try {
-    const fakeUser = {
-      name: form.name || "User",
-      email: form.email
-    };
+    setLoading(true);
+    try {
+      let data;
+      if (tab === "login") {
+        ({ data } = await signin({ email: form.email, password: form.password }));
+      } else {
+        ({ data } = await signup({ name: form.name, email: form.email, password: form.password }));
+      }
 
-    login(fakeUser, "fake-token");
-
-    toast.success(tab === "login" ? "Welcome back! 👋" : "Account created! 🎉");
-
-    navigate("/studio");
-  } catch (err) {
-    toast.error("Something went wrong");
-  } finally {
-    setLoading(false);
-  }
-};
+      login({ name: data.name, email: data.email, token: data.token });
+      toast.success(tab === "login" ? "Welcome back! 👋" : "Account created! 🎉");
+      navigate("/studio");
+    } catch (err) {
+      const msg = err?.response?.data?.error || "Something went wrong";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <motion.div

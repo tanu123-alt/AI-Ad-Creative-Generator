@@ -71,23 +71,47 @@ MongoDB Atlas (Cloud Database)
 ## 📁 Project Structure
 
 ```bash
-AI-Ad-Creative-Generator
+AI-Ad-Creative-Generator/
 │
-├── server.js
-├── .env
-├── package.json
+├── server.js                  # Express entry point
+├── .env                       # Environment variables (not committed)
+├── package.json               # Backend dependencies
 ├── README.md
 │
-├── src
-│   ├── controllers
-│   ├── routes
-│   ├── services
-│   ├── models
+├── src/
+│   ├── controllers/
+│   │   └── adcontroller.js    # Ad generation & history endpoints
+│   ├── routes/
+│   │   ├── adroutes.js        # /api/ad routes
+│   │   └── authRoutes.js      # /api/auth routes
+│   ├── services/
+│   │   ├── aiServices.js      # Groq LLM + image orchestration
+│   │   └── imageService.js    # Hugging Face + Sharp image pipeline
+│   ├── models/
+│   │   ├── Ad.js              # MongoDB Ad schema
+│   │   └── User.js            # MongoDB User schema
+│   └── config/
 │
-└── client
-    ├── src
-    ├── components
-    ├── services
+└── client/                    # React + Vite frontend
+    ├── index.html             # Loads Fabric.js (canvas editor)
+    └── src/
+        ├── pages/
+        │   ├── Welcome.jsx    # Landing page
+        │   ├── Auth.jsx       # Sign In / Sign Up
+        │   ├── Studio.jsx     # Ad generator + live canvas preview
+        │   ├── History.jsx    # Saved campaigns
+        │   └── Profile.jsx    # User profile & settings
+        ├── components/
+        │   ├── editor/
+        │   │   └── CanvasEditor.jsx  # Fabric.js canvas preview
+        │   ├── layout/
+        │   │   └── Navbar.jsx
+        │   └── ui/
+        │       └── FeedbackModal.jsx
+        ├── context/
+        │   └── AuthContext.jsx
+        └── utils/
+            └── api.js         # Axios API client
 ```
 
 ---
@@ -148,12 +172,13 @@ npm install
 
 ### 3️⃣ Setup Environment Variables
 
-Create `.env` file:
+Create `.env` file in the project root:
 
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
-HF_TOKEN=your_huggingface_token
+HF_TOKEN=your_huggingface_api_token
+GROQ_API_KEY=your_groq_api_key
 ```
 
 ---
@@ -178,34 +203,32 @@ Server running on port 5000
 ```bash
 cd client
 npm install
-npm start
+npm run dev
 ```
 
 Frontend runs on:
 
 ```
-http://localhost:3000
+http://localhost:5173
 ```
 
 ---
 
-## 📡 API Endpoint
+## 📡 API Endpoints
 
 ### Generate Ad
 
-**POST**
+**POST** `/api/ad/generate`
 
-```
-/api/ads/generate-ad
-```
-
-### Request Body
+### Request Body (JSON or multipart/form-data with optional logo)
 
 ```json
 {
   "product": "Smartwatch",
   "audience": "College Students",
-  "platform": "Instagram"
+  "platform": "Instagram",
+  "tone": "professional",
+  "aspect": "square"
 }
 ```
 
@@ -213,12 +236,42 @@ http://localhost:3000
 
 ```json
 {
-  "headline": "Level Up Your Style with Smartwatch!",
+  "headline": "Best Smartwatch for College Students!",
   "caption": "Perfect for college students who want smart performance and smart looks.",
-  "hashtags": "#Smartwatch #Students #TechStyle",
-  "cta": "Shop Now",
-  "imageUrl": "base64-image-string"
+  "hashtags": "#Smartwatch #CollegeStudents #Instagram #AdCampaign",
+  "image": "ad_1772721092456.png",
+  "imageUrl": "/generated/ad_1772721092456.png"
 }
+```
+
+---
+
+### Get All Ads (History)
+
+**GET** `/api/ad`
+
+---
+
+### Delete Ad
+
+**DELETE** `/api/ad/:id`
+
+---
+
+### Sign Up
+
+**POST** `/api/auth/signup`
+
+```json
+{ "name": "Jane Doe", "email": "jane@example.com", "password": "secret123" }
+```
+
+### Sign In
+
+**POST** `/api/auth/signin`
+
+```json
+{ "email": "jane@example.com", "password": "secret123" }
 ```
 
 ---
