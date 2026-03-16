@@ -7,14 +7,14 @@ export default defineConfig({
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "https://ai-ad-creative-generator.onrender.com",
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
       "/generated": {
-        target: "http://localhost:5000",
+        target: "https://ai-ad-creative-generator.onrender.com",
         changeOrigin: true,
-        secure: false,
+        secure: true,
       },
     },
   },
